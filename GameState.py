@@ -206,7 +206,7 @@ class game_state:
     def __init__ (self, board_width : int, board_height : int):
         self.board = create_board(board_width, board_height)
     
-"""Définition des méthodes de jeu"""
+    """Définition des méthodes de jeu"""
     def play(self,line,current_played_id):
         pass
     
@@ -228,7 +228,7 @@ class game_state:
     def displayWinner(self):
         pass
     
-"""Définitions des méthodes annexes"""
+    """Définitions des méthodes annexes"""
     
     def isComplete(self,square):
         pass
@@ -263,3 +263,24 @@ def print_all_square_related_to_lines(lines_list : list):
        
 Board = board(2,2)
 Board.create_lists()
+
+
+"""Quelques tests"""
+#vérification que les carrés sont les memes instances
+all_same = 0
+for line in Board.lines_list:
+    compteur = 0
+    number_of_squares = len(line.related_squares_list)
+    for related_square in line.related_squares_list:
+        for square in Board.squares_list:
+            if square is related_square:
+                compteur += 1
+    if number_of_squares == compteur:
+        all_same += 1
+        #print("All squares are same on lists for this line\n")
+    else:
+        pass
+        #print("At least one square is not the same\n")
+if all_same == len(Board.lines_list):
+    print("All squares are same on all lines")
+    
