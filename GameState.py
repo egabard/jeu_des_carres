@@ -18,13 +18,22 @@ class line:
     """Cette classe contient toutes les informations sur une ligne
     Attributs:
     ----------
-    
-    
+    starting point : tuple of int(int : int)
+        Le point de départ de la ligne
+        
+    ending point : tuple of int (int, int)
+        Le point d'arrivé de la ligne
+        
+    state : int
+        L'état de la ligne (1 = tracée, 0 = pas encore tracée)
+        
+    related_squares_list : list of square objects
+        La liste des carrées dont la ligne fait partie
     """
     def __init__(self, starting_point : tuple, ending_point : tuple):
         self.starting_point = starting_point
         self.ending_point = ending_point
-        self.state = 0 #0 = pas encore tracé ; 1 = tracé
+        self.state = 0
         self.related_squares_list = []
 
 class square:
@@ -168,32 +177,61 @@ class game_state:
        
     Méthodes :
     ----------
-    play(line,player_id)
-        Joue un coup pour le joueur avec l'identifiant <player_id> sur la ligne <line>
+    play(self,line,current_player_id)
+        Joue un coup pour le joueur avec l'identifiant <current_player_id> sur la ligne <line>
     
-    canBePlayed(line)
+    canBePlayed(self,line)
         Renvoie True si la ligne <line> est déjà tracée ou non
         
-    winner()
+    winner(self)
         Renvoie l'identifiant du gagnant s'il y en a un
     
-    isTie()
+    isTie(self)
         Renvoie True si la partie se termine sur une égalité
         
-    textDisplay()
-        Affiche l'état de la partie dans le terminal
+    textDisplay(self)
+        Affiche l\'état de la partie dans le terminal
     
-    displayWinner()
+    displayWinner(self)
         Affiche le gagnant de la partie
+        
+    isEnd(self)
+        renvoie True si la partie est finie, renvoie False sinon
+    
+    isComplete(self,square)
+        renvoie True et modifie l'état d'un carré s'il est complété, renvoie False et ne modifie pas son état sinon
     """
+    
     
     def __init__ (self, board_width : int, board_height : int):
         self.board = create_board(board_width, board_height)
     
-"""Définition des fonctions de jeu"""
-def play(line):
+"""Définition des méthodes de jeu"""
+    def play(self,line,current_played_id):
+        pass
     
+    def isEnd(self):
+        pass
 
+    def canBePlayed(self,line):
+        pass
+
+    def winner(self):
+        pass
+
+    def isTie(self):
+        pass
+
+    def textDisplay(self):
+        pass
+    
+    def displayWinner(self):
+        pass
+    
+"""Définitions des méthodes annexes"""
+    
+    def isComplete(self,square):
+        pass
 
 """Définition des fonction de debugging"""
 def print_all_points(points_list):
