@@ -1,3 +1,5 @@
+
+import random
 """
 Projet de programmation 2022 - 2023
 Gabard Enzo
@@ -54,7 +56,7 @@ class square:
         self.state = 0 #0 = pas remporté ; 1 = remporté par joueur 1 ; 2 = remporté par joueur 2
         self.borders = borders
     
-class board:
+class Board:
     """Cette classe contient toutes les informations sur l'état du plateau au cours de la partie,
     l'instance de cette classe sera un attribut de la class GameState.
     
@@ -201,27 +203,35 @@ class game_state:
         renvoie True si la partie est finie, renvoie False sinon
     
     isComplete(self,square,player_id)
-        renvoie True et modifie l'état d'un carré (en lui changeant sa composante <state> avec le <player_id> du joueur qui vient de le compléter)s'il est complété, renvoie False et ne modifie pas son état sinon
+        renvoie True et modifie l'état d'un carré (en lui changeant sa composante <state> avec le <player_id> du joueur qui vient de le compléter) s'il est complété, renvoie False et ne modifie pas son état sinon
     """
     
     
-    def __init__ (self, board_width : int, board_height : int):
-        self.board = create_board(board_width, board_height)
-    
+    def __init__ (self, board_width : int, board_height : int,debug = False):
+        self.board = Board(board_width, board_height,debug)
+        
     """Définition des méthodes de jeu"""
     def play(self,starting_point,ending_point,current_played_id):
-        line = find_line(starting_point,ending_point)
+        line = self.find_line(starting_point,ending_point)
         if line != 1:
-            if canBePlayed(line):
+            if self.canBePlayed(line):
                 line.state = 1
                 for square in line.related_squares_list:
-                    if isComplete_square:
-                        return True
-        return False
+                    is_complete = self.isComplete(square,current_played_id)
+                    if is_complete:
+                        if self.isEnd():
+                            self.displayWinner()
+                            return "end of game"
+                        else:
+                            return "another play"
+                return "played"
+            else:
+                return "already drawn"
+        return "invalid line"
     
     def isEnd(self):
-        for square in self.squares_list:
-            if square.state != 0:
+        for square in self.board.squares_list:
+            if square.state == 0:
                 return False
         return True
 
@@ -233,38 +243,91 @@ class game_state:
     def winner(self):
         player_1_points = 0
         player_2_points = 0
-        for square in self.squares_list:
+        for square in self.board.squares_list:
             if square.state == 1:
                 player_1_points += 1
-            else:
-                player_2_points +=1
-                
-        if player_1_points > player_2_points:
-            return 1
-        if player_1_points < player_2_points:
-            return 2
+            if square.state == 2:
+                player_2_points += 1
         
-        return 0
-
+        if player_1_points > player_2_points:
+            return (1,player_1_points,player_2_points)
+        
+        if player_2_points > player_1_points:
+            return (2,player_1_points,player_2_points)
+        
+        else:
+            return (0,player_1_points,player_2_points)
+        
+    #Point centré ·
+    #Ligne horizontal non-tracée ┈
+    #Ligne horizontale tracée ─
+    #Ligne verticale non-tracée ┊
+    #Ligne verticale tracée |
+    """·┈·┈·\n┊ ┊ ┊\n·┈·┈·\n┊ ┊ ┊\n·┈·┈·"""
     def textDisplay(self):
-        pass
-    
+        final_string = ""
+        for y_index in range(self.board.height+1):
+            horizontale_line_string = ""
+            verticale_line_string = ""
+            for x_index in range(self.board.width+1):
+                """print(x_index,y_index,"-->",x_index+1,y_index)
+                print(x_index,y_index,"-->",x_index,y_index+1)"""
+                horizontale_line = self.find_line((x_index,y_index),(x_index+1,y_index))
+                verticale_line = self.find_line((x_index,y_index),(x_index,y_index+1))
+                if horizontale_line != 1:
+                    if horizontale_line.state == 0:
+                        horizontale_line_string += "·┈"
+                    else:
+                        horizontale_line_string += "·─"
+                        
+                if verticale_line != 1:
+                    if verticale_line.state == 0:
+                        verticale_line_string += "┊ "
+                    else:
+                        verticale_line_string += "|"
+                        square = self.find_square((x_index,y_index))
+                        if square != 1:
+                            if square.state == 0:
+                                verticale_line_string += " "
+                            if square.state == 1:
+                                verticale_line_string += "1"
+                            if square.state == 2:
+                                verticale_line_string += "2"
+                                
+            final_string += horizontale_line_string+"·\n"+verticale_line_string+"\n"
+        print(final_string)
+        
     def displayWinner(self):
-        pass
+        winner_and_scores = self.winner()
+        winner_id = winner_and_scores[0]
+        player_1_score = winner_and_scores[1]
+        player_2_score = winner_and_scores[2]
+        if winner_id == 0:
+            print("\n\négalité, il n'y a aucun gagnant")
+        else:
+            print(f"\n\nLe joueur {winner_id} a gagné {max(player_1_score,player_2_score)} - {min(player_1_score,player_2_score)}")
     
     """Définitions des méthodes annexes"""
     def find_line(self,starting_point,ending_point):
-        for line in self.lines_list:
-            if line.starting_point == starting_point and line.ending_point == ending_point:
-                return line
-            
-            else:
-                return 1
-    def isComplete(self,square,played_id):
+        for line in self.board.lines_list:
+            if line.starting_point == starting_point:
+                if line.ending_point == ending_point:
+                    return line
+            if line.starting_point == ending_point:
+                if line.ending_point == starting_point:
+                    return line
+        return 1
+    
+    def find_square(self,top_left_corner):
+        for square in self.board.squares_list:
+            if square.top_left_corner == top_left_corner:
+                return square
+        return 1
+    
+    def isComplete(self,square,player_id):
         for line in square.borders:
-            if line.state == 1:
+            if line.state == 0:
                 return False
-            
         square.state = player_id
         return True
 
@@ -296,7 +359,7 @@ def print_all_square_related_to_lines(lines_list : list):
             string += f"square starting at {square.top_left_corner}\n"
         print(string)
        
-Board = board(2,2)
+
 
 
 """Quelques tests"""
@@ -310,7 +373,26 @@ def verif_instances(Board):
                     print("All squares are not the same")
                     return
     print("All squares are the same")
-                
-#verif_instances(Board)
+def test_play():
+    
+    """for line in GS.board.lines_list:
+        GS.play(line.starting_point,line.ending_point,random.randint(1,2))
+        GS.textDisplay()
+    
+    
+    GS.play((0,0),(0,1),1)
+    GS.play((0,1),(1,1),1)
+    GS.play((0,0),(1,0),1)
+    GS.play((1,0),(1,1),1)
+
+    GS.play((4,4),(4,5),2)
+    GS.play((4,4),(5,4),2)
+    GS.play((4,5),(5,5),2)
+    GS.play((5,4),(5,5),2)
+    
+    GS.textDisplay()"""
+  
+test_play()
+#verif_instances(GS.board)
                 
     
