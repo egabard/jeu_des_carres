@@ -51,7 +51,7 @@ class square:
     """
     def __init__(self, top_left_corner : tuple, borders : list):
         self.top_left_corner = top_left_corner
-        self.state = 0 #0 = pas remporté ; 1 = remporté
+        self.state = 0 #0 = pas remporté ; 1 = remporté par joueur 1 ; 2 = remporté par joueur 2
         self.borders = borders
     
 class board:
@@ -96,7 +96,8 @@ class board:
         Appelle toutes les fonctions de création de liste dans le but d'initialiser le plateau.
     
     """
-    def __init__ (self, width : int, height : int):
+    def __init__ (self, width : int, height : int, debug = False):
+        self.debug = debug
         self.width = width
         self.height = height
         
@@ -104,13 +105,15 @@ class board:
         self.lines_list = []
         self.squares_list = []
         
+        self.create_lists()
+        
     def create_points_list(self):
         for width_index in range (self.width + 1):
             for height_index in range(self.height + 1):
                 self.points_list.append((width_index,height_index))
                 
-        """for debugging
-        print_all_points(self.points_list)"""
+        if self.debug:
+            print_all_points(self.points_list)
     
     def create_lines_list(self):
         for point in self.points_list:
@@ -123,8 +126,9 @@ class board:
             else:
                 if point[1] < self.height:
                     self.lines_list.append(line(point,(point[0],point[1]+1)))
-        """for debugging
-        print_all_lines(self.lines_list)"""
+        if self.debug:
+            print_all_lines(self.lines_list)
+            
     def create_borders(self, top_left_corner_point : tuple):
         square_borders = []
         for line in self.lines_list:
@@ -146,15 +150,16 @@ class board:
                             square_borders = self.create_borders(point) 
                     self.squares_list.append(square(point, square_borders))
         
-        """for debugging
-        print_all_square_borders(self.squares_list)"""
+        if self.debug:
+            print_all_square_borders(self.squares_list)
         
     def add_squares_at_lines_objects(self):
         for square in self.squares_list:
             for line in square.borders:
                 line.related_squares_list.append(square)
-        """for debugging
-        print_all_square_related_to_lines(self.lines_list)"""
+        
+        if self.debug:
+            print_all_square_related_to_lines(self.lines_list)
         
     def create_lists(self):
         self.create_points_list()
@@ -177,18 +182,15 @@ class game_state:
        
     Méthodes :
     ----------
-    play(self,line,current_player_id)
-        Joue un coup pour le joueur avec l'identifiant <current_player_id> sur la ligne <line>
-    
+    play(self,starting_point,ending_point,current_player_id)
+        Joue un coup pour le joueur avec l'identifiant <current_player_id> sur la ligne qui part du point <starting_point> et qui arrive au point <ending_point> et renvoie True si le joueur doit rejouer, renvoie False sinon
+
     canBePlayed(self,line)
         Renvoie True si la ligne <line> est déjà tracée ou non
         
     winner(self)
-        Renvoie l'identifiant du gagnant s'il y en a un
+        Renvoie l'identifiant du gagnant s'il y en a un et renvoie 0 sinon
     
-    isTie(self)
-        Renvoie True si la partie se termine sur une égalité
-        
     textDisplay(self)
         Affiche l\'état de la partie dans le terminal
     
@@ -198,8 +200,8 @@ class game_state:
     isEnd(self)
         renvoie True si la partie est finie, renvoie False sinon
     
-    isComplete(self,square)
-        renvoie True et modifie l'état d'un carré s'il est complété, renvoie False et ne modifie pas son état sinon
+    isComplete(self,square,player_id)
+        renvoie True et modifie l'état d'un carré (en lui changeant sa composante <state> avec le <player_id> du joueur qui vient de le compléter)s'il est complété, renvoie False et ne modifie pas son état sinon
     """
     
     
@@ -207,20 +209,42 @@ class game_state:
         self.board = create_board(board_width, board_height)
     
     """Définition des méthodes de jeu"""
-    def play(self,line,current_played_id):
-        pass
+    def play(self,starting_point,ending_point,current_played_id):
+        line = find_line(starting_point,ending_point)
+        if line != 1:
+            if canBePlayed(line):
+                line.state = 1
+                for square in line.related_squares_list:
+                    if isComplete_square:
+                        return True
+        return False
     
     def isEnd(self):
-        pass
+        for square in self.squares_list:
+            if square.state != 0:
+                return False
+        return True
 
     def canBePlayed(self,line):
-        pass
+        if line.state == 0:
+            return True
+        return False
 
     def winner(self):
-        pass
-
-    def isTie(self):
-        pass
+        player_1_points = 0
+        player_2_points = 0
+        for square in self.squares_list:
+            if square.state == 1:
+                player_1_points += 1
+            else:
+                player_2_points +=1
+                
+        if player_1_points > player_2_points:
+            return 1
+        if player_1_points < player_2_points:
+            return 2
+        
+        return 0
 
     def textDisplay(self):
         pass
@@ -229,9 +253,20 @@ class game_state:
         pass
     
     """Définitions des méthodes annexes"""
-    
-    def isComplete(self,square):
-        pass
+    def find_line(self,starting_point,ending_point):
+        for line in self.lines_list:
+            if line.starting_point == starting_point and line.ending_point == ending_point:
+                return line
+            
+            else:
+                return 1
+    def isComplete(self,square,played_id):
+        for line in square.borders:
+            if line.state == 1:
+                return False
+            
+        square.state = player_id
+        return True
 
 """Définition des fonction de debugging"""
 def print_all_points(points_list):
@@ -262,25 +297,20 @@ def print_all_square_related_to_lines(lines_list : list):
         print(string)
        
 Board = board(2,2)
-Board.create_lists()
 
 
 """Quelques tests"""
 #vérification que les carrés sont les memes instances
-all_same = 0
-for line in Board.lines_list:
-    compteur = 0
-    number_of_squares = len(line.related_squares_list)
-    for related_square in line.related_squares_list:
-        for square in Board.squares_list:
-            if square is related_square:
-                compteur += 1
-    if number_of_squares == compteur:
-        all_same += 1
-        #print("All squares are same on lists for this line\n")
-    else:
-        pass
-        #print("At least one square is not the same\n")
-if all_same == len(Board.lines_list):
-    print("All squares are same on all lines")
+def verif_instances(Board):
+    for line in Board.lines_list:
+        number_of_squares = len(line.related_squares_list)
+        for related_square in line.related_squares_list:
+            for square in Board.squares_list:
+                if square is related_square == False:
+                    print("All squares are not the same")
+                    return
+    print("All squares are the same")
+                
+#verif_instances(Board)
+                
     

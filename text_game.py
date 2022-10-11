@@ -6,5 +6,9 @@ def print_grid(board):
     height = board.height
     
     for x_index in range(width):
-        pass
+        
+        for y_index in range(height):
+            
+            
+    
     
