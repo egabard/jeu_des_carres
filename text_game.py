@@ -55,6 +55,9 @@ while game_running:
             if command == 'h':
                 help_function()
                 command_accepted = True
+            if command == 'q':
+                game_running = False
+                command_accepted = True
                 
             else:
                 formating_result = formating(command)
