@@ -185,19 +185,19 @@ class game_state:
     Méthodes :
     ----------
     play(self,starting_point,ending_point,current_player_id)
-        Joue un coup pour le joueur avec l'identifiant <current_player_id> sur la ligne qui part du point <starting_point> et qui arrive au point <ending_point> et renvoie True si le joueur doit rejouer, renvoie False sinon
+        Joue un coup pour le joueur avec l'identifiant <current_player_id> sur la ligne qui part du point <starting_point> et qui arrive au point <ending_point> et renvoie "another play" si le joueur doit rejouer, renvoie "game complete si le joueur a complétét le dernier carré, renvoie played si le joueur n'as pas complété de carré et renvoie "already played" si la ligne est déjà tracée"
 
     canBePlayed(self,line)
         Renvoie True si la ligne <line> est déjà tracée ou non
         
     winner(self)
-        Renvoie l'identifiant du gagnant s'il y en a un et renvoie 0 sinon
+        Renvoie l'identifiant du gagnant (s'il y en a un et renvoie 0 sinon) ainsi que les scores des 2 joueurs 
     
     textDisplay(self)
-        Affiche l\'état de la partie dans le terminal
+        Affiche l'état de la partie dans le terminal
     
     displayWinner(self)
-        Affiche le gagnant de la partie
+        Affiche le gagnant de la partie ainsi que le score final
         
     isEnd(self)
         renvoie True si la partie est finie, renvoie False sinon
@@ -209,6 +209,7 @@ class game_state:
     
     def __init__ (self, board_width : int, board_height : int,debug = False):
         self.board = Board(board_width, board_height,debug)
+        
         
     """Définition des méthodes de jeu"""
     def play(self,starting_point,ending_point,current_played_id):
