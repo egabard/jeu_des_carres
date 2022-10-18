@@ -178,10 +178,7 @@ class game_state:
         Le quadrillage sur lequel les lignes seront tracées ainsi que es carrés qu'elles composent.
         Chaque ligne peut avoir la valeur 0 dans le cas où elle n'as pas encore été tracée, ou 1 si elle l'a été.
         Chaque carré peut également avoir les même valeurs.
-        
-    hasWon :
-        l'identifiant du joueur qui gagne la partie, s'il n'y a pas d'égalité.
-       
+               
     Méthodes :
     ----------
     play(self,starting_point,ending_point,current_player_id)

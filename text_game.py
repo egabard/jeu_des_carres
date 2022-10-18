@@ -7,29 +7,50 @@ game_running = True
 
 """Définitions des classes représentant les différentes erreurs possibles"""
 class FormatError(Exception):
-    """Cette classe représente l'erreur renvoyée pour les erreurs de format"""
+    #"""Cette classe représente l'erreur renvoyée pour les erreurs de format
     pass
 
 class LineError(Exception):
-    """Cette classe représente l'erreur renvoyée lorsque la ligne est déjà tracée sur le plateau"""
+    #Cette classe représente l'erreur renvoyée lorsque la ligne est déjà tracée sur le plateau
     pass
 
-"""Définition des fonctions de jeu"""
+class LineValueError(Exception):
+    #Cette classe représente l'erreur renvoyée quand les valeurs des points d'une ligne donnée dans le terminale sont inferieures a 0ou supérieures a la limite du plateau
+    pass
+
+#"""Définition des fonctions de jeu"""
 def help_function():
     print("\n\nPour jouer vous devez taper les points de départs et d'arrivée suivant le fomrat suivant : (X X)(X X) ou X est un nombre appartenant aux limites du plateau\nLes points doivent être adjacents sur le plateau de jeu, ils ne peuvent pas être adjacents dans la diagonale, ils doivent pouvoir être reliés par une seule et unique ligne.\n\n")
     
 """Cette fonction permet de voir si les arguments donnés pour tracer une ligne sont bien formatés et si leur nombre est le bon, elle vérifie également si leur type est bien entier
 Elle renvoie ensuite les points de départ et d'arrivée qu'elle en a extrait"""
 
-def formating(command):
+def formating(command,board):
+    
+    
+    
     digits_list = []
-    command = ''.join(x for x in command if x.isdigit())
+    command2 = ""
+    for index in range(len(command)-1):
+        if command[index] == ')' and command[index +1] == '(':
+            command2 += f"{command[index]} "
+        else:
+            command2 += f"{command[index]}"
+    command2 += command[-1]
+    command = ''.join(x for x in command2 if x != ')' and x != '(')
+    command = command.split(' ')
     if len(command) == 4:
-        for elt in command:
-            if (int(elt) < height_selected) and (int(elt) < height_selected) == False:
-                return False
-            else:
-                digits_list.append(int(elt))
+        for index in range(len(command)):
+            if index % 2 == 1:
+                if not(int(command[index]) <= board.width and int(command[index]) >= 0):
+                    return "valeurs"
+                else:
+                    digits_list.append(int(command[index]))
+            if index % 2 == 0:
+                if not (int(command[index]) <= board.height and int(command[index]) >= 0):
+                    return "valeurs"
+                else:
+                    digits_list.append(int(command[index]))
         starting_point = (digits_list[0],digits_list[1])
         ending_point = (digits_list[2],digits_list[3])
         return (starting_point,ending_point)
@@ -37,7 +58,7 @@ def formating(command):
         return False
 
 #Permet de choisir la hauteur du plateau en gérant les erreurs de type ainsi que les tailles maximales du plateau
-while height_selected == False:
+while not height_selected:
     try:
         height = int(input("Quelle hauteur de plateau voulez vous ? (elle doit comprise entre 1 et 25 inclus)\n"))
         if height > 0 and height < 26:
@@ -48,7 +69,7 @@ while height_selected == False:
         print("\n\nLa hauteur doit etre un entier positif\n")
 
 #Permet de choisir la largeur du plateau en gérant les erreurs de type ainsi que les tailles maximales du plateau
-while width_selected == False:
+while not width_selected:
     try:
         width = int(input("Quelle largeur de plateau voulez vous ? (elle doit comprise entre 1 et 25 inclus)\n"))
         if width > 0 and width < 26:
@@ -68,7 +89,7 @@ while game_running:
     command_accepted = False
     
     #boucle entre les comandes
-    while command_accepted == False:
+    while not command_accepted:
         try:
             command = input("Tapez h pour afficher l'aide\nPour jouer tapez le point de départ de votre ligne et le point d'arrivée\n")
             if command == 'h':
@@ -79,9 +100,11 @@ while game_running:
                 command_accepted = True
                 
             else:
-                formating_result = formating(command)
-                if formating_result == False:
+                formating_result = formating(command,GS.board)
+                if not formating_result:
                     raise(FormatError)
+                elif formating_result == "valeurs":
+                    raise(LineValueError)
                 else:
                     starting_point = formating_result[0]
                     ending_point = formating_result[1]
@@ -113,4 +136,6 @@ while game_running:
             print("\n\nLes points doivent être adjacents")
         except LineError:
             print("\n\nLa ligne est déjà tracée")
+        except LineValueError:
+            print("\n\nLes valeurs des lignes doivent être comprises dans les limites du plateau")
         
