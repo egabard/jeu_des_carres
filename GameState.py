@@ -207,7 +207,6 @@ class game_state:
     def __init__ (self, board_width : int, board_height : int,debug = False):
         self.board = Board(board_width, board_height,debug)
         
-        
     """Définition des méthodes de jeu"""
     def play(self,starting_point,ending_point,current_played_id):
         line = self.find_line(starting_point,ending_point)

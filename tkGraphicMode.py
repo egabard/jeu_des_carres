@@ -69,7 +69,7 @@ class GameWindow():
                 if point_position != False:
                     if point_position[0] + self.square_border_length - 2 <= self.x_decalage + self.square_border_length * self.grid_width:
                         self.line_list.append(self.board.create_line(point_position[0]+6,point_position[1]+2,point_position[0]+self.square_border_length-2,point_position[1]+2,width = 5))
-                    if point_position[3] + self.square_border_length - 2 <= self.y_decalage + self.square_border_length * self.grid_height:
+                    if point_position[1] + self.square_border_length - 2 <= self.y_decalage + self.square_border_length * self.grid_height:
                         self.line_list.append(self.board.create_line(point_position[0]+2,point_position[1]+6,point_position[0]+2,point_position[1]+self.square_border_length - 2,width = 5))
     def find_point_position(self,x,y):
         for point in self.point_positions_list:
@@ -86,10 +86,11 @@ class GameWindow():
         square_height = self.canvas_height // self.grid_height
         square_width = self.canvas_width // self.grid_width
         
-        self.board = tk.Canvas(self.root, width = self.canvas_width, height = self.canvas_height, bg = 'white')
+        self.board = tk.Canvas(self.root, width = self.canvas_width, height = self.canvas_height)
         self.board.place(relx= 0.25, rely = 0.0)
         
-        self.square_border_length = min(square_height,square_width)
+        self.square_border_length = min(square_height,square_width)*0.95
+        
         self.x_decalage = (self.canvas_width-self.grid_width*self.square_border_length)/2
         self.y_decalage = (self.canvas_height-self.grid_height*self.square_border_length)/2
         
@@ -119,8 +120,9 @@ class GameWindow():
     def init_board(self):
         self.draw_grid_points()
         self.draw_grid_lines()
+        
     
+GW = GameWindow()
     
-
 if __name__ == '__main__':
     GW = GameWindow()
